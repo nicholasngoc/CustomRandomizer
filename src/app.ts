@@ -2,16 +2,27 @@ import fs from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
 
-const chosenFilepathBySupportedFlags = {
+enum SupportedFlag {
+  OW = 'ow',
+  GSUPPS = 'gsupps',
+  HALO = 'halo'
+}
+// type SupportedFlag = 'ow' | 'gsupps' | 'halo';
+
+type FilepathByFlag = Record<SupportedFlag, string>;
+const chosenFilepathBySupportedFlags: FilepathByFlag = {
   'ow': '../../chosen/chosenOw.json',
-  'gsupps': '../../chosen/chosenGsupps.json'
+  'gsupps': '../../chosen/chosenGsupps.json',
+  'halo': '../../chosen/chosenHalo.json'
 }
 
-const listFilepathBySupportedFlags = {
+const listFilepathBySupportedFlags: FilepathByFlag = {
   'ow': '../../lists/overwatch2.txt',
-  'gsupps': '../../lists/gsupps.txt'
-
+  'gsupps': '../../lists/gsupps.txt',
+  'halo': '../../lists/halo.txt'
 }
+
+const chosenFilepath = '../../chosen'
 
 function getFlag(): string {
   try {
@@ -40,7 +51,11 @@ async function getList(): Promise<string[] | null> {
 }
 
 async function getChosen(list: string[]): Promise<{ [item: string]: number }> {
-  let chosen: { [item: string]: number } = {};
+  const chosen: { [item: string]: number } = {};
+  list.forEach((item) => {
+    chosen[item] = 1;
+  })
+
   const flag = getFlag();
   const chosenFilepath = chosenFilepathBySupportedFlags[flag];
   if (chosenFilepath) {
@@ -48,19 +63,23 @@ async function getChosen(list: string[]): Promise<{ [item: string]: number }> {
     if (fs.existsSync(relativePath)) {
       try {
         const content = await fsp.readFile(relativePath);
-        chosen = JSON.parse(content.toString()) as any;
+        const chosenFromFile = JSON.parse(content.toString()) as any;
+        Object.keys(chosen).forEach((key) => {
+          if (chosenFromFile[key]) {
+            chosen[key] = chosenFromFile[key]
+          }
+        })
       } catch (e) {
         console.log('Error while reading file: ', e);
       }
     } else {
-      list.forEach((item) => {
-        chosen[item] = 1;
-      })
-
       try {
-        await fsp.writeFile(relativePath, JSON.stringify(chosen))
+        // TODO I can't get this to work. It just errors instead of creating the file
+        const fileHandle = await fsp.open(relativePath, 'w');
+        await fileHandle.writeFile(JSON.stringify(chosen));
+        await fileHandle.close();
       } catch (e) {
-        console.log('Error while writing file', e);
+        console.log('Error while creating chosen file', e);
       }
     }
   }
@@ -97,9 +116,12 @@ async function init() {
   const chosenFilepath = chosenFilepathBySupportedFlags[flag];
   const relativePath = getRelativePath(chosenFilepath);
   try {
-    await fsp.writeFile(relativePath, JSON.stringify(chosen))
+    // TODO I can't get this to generate the file if it doesn't exist
+    const fileHandle = await fsp.open(relativePath, 'w');
+    await fileHandle.writeFile(JSON.stringify(chosen));
+    await fileHandle.close();
   } catch (e) {
-    console.log('Error while writing file', e);
+    console.log('Error while updating chosen', e);
   }
 }
 
