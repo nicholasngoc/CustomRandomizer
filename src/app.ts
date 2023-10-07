@@ -70,16 +70,19 @@ async function init() {
   const theChosen = cards[randInt];
   console.log('I have chosen: ', theChosen);
 
-  console.log('New Cards:');
   Object.keys(chosenForFilenameFlag).forEach((listItem) => {
     if (listItem === theChosen) {
       chosenForFilenameFlag[listItem] = 1;
     } else {
       chosenForFilenameFlag[listItem] += 1
     }
-
-    console.log(`${listItem}: ${chosenForFilenameFlag[listItem]}`);
   });
+
+  console.log('New Top 3 Cards:')
+  const topThreeCards = list.sort((listItem) => chosenForFilenameFlag[listItem] ?? 0)
+    .slice(0, 3)
+    .map(listItem => `${listItem}${chosenForFilenameFlag[listItem] ? `: ${chosenForFilenameFlag[listItem]}` : ''}`);
+  console.log(`[${topThreeCards.join(', ')}]`)
 
   chosen[filenameFlag] = chosenForFilenameFlag;
   try {
