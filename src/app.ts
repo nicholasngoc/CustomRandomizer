@@ -35,10 +35,11 @@ async function getList(): Promise<string[] | null> {
   return list.split('\r\n')
 }
 
-async function getChosen(list: string[]): Promise<ChosenFileFormat> {
+async function getChosen(): Promise<ChosenFileFormat> {
   try {
-    const fileHandle = await fsp.open(chosenFilepath, 'w+');
-    const content = await fileHandle.readFile();
+    const fileHandle = await fsp.open(chosenFilepath, 'a+');
+    const content = await fileHandle.readFile({ encoding: 'utf8' });
+    await fileHandle.close();
     return content.toString() ? JSON.parse(content.toString()) : {};
   } catch (e) {
     console.log('Error getting chosen', e);
@@ -52,7 +53,7 @@ async function init() {
     return;
   }
 
-  const chosen = await getChosen(list);
+  const chosen = await getChosen();
   const chosenForFilenameFlag = chosen[filenameFlag] ? chosen[filenameFlag] : {};
   const cards = [];
   list.forEach((listItem) => {
