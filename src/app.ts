@@ -80,7 +80,7 @@ async function init() {
   });
 
   console.log('New Top 3 Cards:')
-  const topThreeCards = list.sort((listItem) => updatedChosenForFilenameFlag[listItem] * -1 ?? 0)
+  const topThreeCards = list.sort((listItem1, listItem2) => updatedChosenForFilenameFlag[listItem2] - updatedChosenForFilenameFlag[listItem1])
     .slice(0, 3)
     .map(listItem => `${listItem}${updatedChosenForFilenameFlag[listItem] ? `: ${updatedChosenForFilenameFlag[listItem]}` : ''}`);
   console.log(`[${topThreeCards.join(', ')}]`)
