@@ -1,5 +1,4 @@
 import fsp from 'fs/promises';
-import path from 'path';
 
 type ChosenFileFormat = {
   [filenameFlag: string]: {
@@ -19,14 +18,10 @@ function getFilenameFlag(): string {
 
 const filenameFlag = getFilenameFlag();
 
-function getRelativePath(_path: string) {
-  return path.resolve(process.argv[1], _path);
-}
-
-const chosenFilepath = getRelativePath('../../chosen.json');
+const CHOSEN_FILEPATH = './chosen.json';
 
 async function getList(): Promise<string[] | null> {
-  const listFilePath = getRelativePath(`../../lists/${filenameFlag}.txt`);
+  const listFilePath = `./lists/${filenameFlag}.txt`;
   if (!listFilePath) {
     return null;
   }
@@ -37,7 +32,7 @@ async function getList(): Promise<string[] | null> {
 
 async function getChosen(): Promise<ChosenFileFormat> {
   try {
-    const fileHandle = await fsp.open(chosenFilepath, 'a+');
+    const fileHandle = await fsp.open(CHOSEN_FILEPATH, 'a+');
     const content = await fileHandle.readFile({ encoding: 'utf8' });
     await fileHandle.close();
     return content.toString() ? JSON.parse(content.toString()) : {};
@@ -87,8 +82,7 @@ async function init() {
 
   chosen[filenameFlag] = updatedChosenForFilenameFlag;
   try {
-    // TODO I can't get this to generate the file if it doesn't exist
-    const fileHandle = await fsp.open(chosenFilepath, 'w');
+    const fileHandle = await fsp.open(CHOSEN_FILEPATH, 'w');
     await fileHandle.writeFile(JSON.stringify(chosen));
     await fileHandle.close();
   } catch (e) {
