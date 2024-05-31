@@ -50,7 +50,7 @@ async function init() {
 
   const chosen = await getChosen();
   const chosenForFilenameFlag = chosen[filenameFlag] ? chosen[filenameFlag] : {};
-  const cards = [];
+  let cards = [];
   list.forEach((listItem) => {
     if (!chosenForFilenameFlag[listItem]) {
       chosenForFilenameFlag[listItem] = 1
@@ -60,6 +60,9 @@ async function init() {
       cards.push(listItem);
     }
   })
+
+  // Randomize cards
+  cards = cards.sort(() => Math.floor(Math.random() * cards.length - (cards.length / 2)));
 
   const randInt = Math.floor(Math.random() * cards.length);
   const theChosen = cards[randInt];
