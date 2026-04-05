@@ -51,16 +51,12 @@ async function init() {
   const chosen = await getChosen();
   const chosenForFilenameFlag = chosen[filenameFlag] ? chosen[filenameFlag] : {};
   let cards = [];
-  list.sort((listItem1, listItem2) => chosenForFilenameFlag[listItem2] - chosenForFilenameFlag[listItem1])
-  .forEach((listItem, index) => {
+  list.forEach((listItem) => {
     if (!chosenForFilenameFlag[listItem]) {
       chosenForFilenameFlag[listItem] = 1
     }
 
-    const cardCount = index <= 3
-      ? Math.pow(chosenForFilenameFlag[listItem], 2)
-      : chosenForFilenameFlag[listItem];
-    for (let i = 0; i < cardCount; i += 1) {
+    for (let i = 0; i < chosenForFilenameFlag[listItem]; i += 1) {
       cards.push(listItem);
     }
   })
