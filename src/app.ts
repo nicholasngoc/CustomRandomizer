@@ -50,22 +50,38 @@ async function init() {
 
   const chosen = await getChosen();
   const chosenForFilenameFlag = chosen[filenameFlag] ? chosen[filenameFlag] : {};
-  let cards = [];
-  list.forEach((listItem) => {
-    if (!chosenForFilenameFlag[listItem]) {
-      chosenForFilenameFlag[listItem] = 1
-    }
 
-    for (let i = 0; i < chosenForFilenameFlag[listItem]; i += 1) {
-      cards.push(listItem);
-    }
+  let theChosen: string = '';
+
+  /**
+   * Mechanism that guarantees a chosen based on if it hasn't been chosen for the
+   * entire length of the list
+   */
+  const guaranteed = Object.entries(chosenForFilenameFlag).find(([, count]) => {
+    return count >= list.length;
   })
 
-  // Randomize cards
-  cards = cards.sort(() => Math.floor(Math.random() * cards.length - (cards.length / 2)));
+  if (guaranteed) {
+    theChosen = guaranteed[0];
+  } else { // Standard deck shuffling and choosing mechanism
+    let cards: string[] = [];
+    list.forEach((listItem) => {
+      if (!chosenForFilenameFlag[listItem]) {
+        chosenForFilenameFlag[listItem] = 1
+      }
 
-  const randInt = Math.floor(Math.random() * cards.length);
-  const theChosen = cards[randInt];
+      for (let i = 0; i < chosenForFilenameFlag[listItem]; i += 1) {
+        cards.push(listItem);
+      }
+    })
+
+    // Randomize cards
+    cards = cards.sort(() => Math.floor(Math.random() * cards.length - (cards.length / 2)));
+
+    const randInt = Math.floor(Math.random() * cards.length);
+    theChosen = cards[randInt];
+  }
+
   console.log('I have chosen: ', theChosen);
 
   const updatedChosenForFilenameFlag = {};
