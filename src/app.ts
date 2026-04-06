@@ -58,7 +58,7 @@ async function init() {
    * entire length of the list
    */
   const guaranteed = Object.entries(chosenForFilenameFlag).find(([, count]) => {
-    return count >= list.length;
+    return count >= Math.max(list.length * 1.5, list.length + 5);
   })
 
   if (guaranteed) {
